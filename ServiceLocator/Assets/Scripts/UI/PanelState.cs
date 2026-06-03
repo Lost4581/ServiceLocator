@@ -1,22 +1,27 @@
 using DG.Tweening;
 using UnityEngine;
+using Zenject;
 
 public class PanelState : IUIState
 {
     private readonly PanelView _view;
     private readonly UISwitcher _switcher;
-    private readonly IService _serviceLocator;
+    private readonly ISoundPlayer _soundPlayer;
+    private readonly IFadeService _fadeService;
+    private readonly ISaver _saver;
     private readonly Score _score;
 
     private readonly System.Action _onClose;
     private readonly System.Action _onCollect;
     private const float FADE_DURATION = 0.3f;
 
-    public PanelState(PanelView view, UISwitcher switcher, IService serviceLocator, Score score)
+    public PanelState(PanelView view, UISwitcher switcher, ISoundPlayer soundPlayer, IFadeService fadeService, ISaver saver, Score score)
     {
         _view = view;
         _switcher = switcher;
-        _serviceLocator = serviceLocator;
+        _soundPlayer = soundPlayer;
+        _fadeService = fadeService;
+        _saver = saver;
         _score = score;
 
         _onClose = () => _switcher.SwitchTo("Main");
@@ -26,30 +31,23 @@ public class PanelState : IUIState
     public void Enter()
     {
         _view.gameObject.SetActive(true);
-        _view.PanelBackground.gameObject.SetActive(true);
-
         _view.CanvasGroup.alpha = 0f;
         _view.CanvasGroup.interactable = true;
-
-        var c = _view.PanelBackground.color;
-        c.a = 0f;
-        _view.PanelBackground.color = c;
 
         _view.SubscribeClose(_onClose);
         _view.SubscribeCollect(_onCollect);
 
         _view.CanvasGroup.DOFade(1f, FADE_DURATION).SetEase(Ease.Linear);
-
-        _serviceLocator.GetService < IFadeService > ()?.FadeIn(_view.PanelBackground, FADE_DURATION);
-        _serviceLocator.GetService<ISoundPlayer>()?.PlayOpenSound();
+        _fadeService.FadeIn(_view.PanelBackground, FADE_DURATION);
+        _soundPlayer.PlayOpenSound();
 
         UpdateDisplay();
     }
 
     public void Exit()
     {
-        _serviceLocator.GetService<ISaver>()?.SaveScore();
-        _serviceLocator.GetService<ISoundPlayer>()?.PlayCloseSound();
+        _saver.SaveScore();
+        _soundPlayer.PlayCloseSound();
 
         _view.UnsubscribeClose(_onClose);
         _view.UnsubscribeCollect(_onCollect);
@@ -59,7 +57,7 @@ public class PanelState : IUIState
              .SetEase(Ease.Linear)
              .OnComplete(() => _view.gameObject.SetActive(false));
 
-        _serviceLocator.GetService < IFadeService > ()?.FadeOut(_view.PanelBackground, FADE_DURATION);
+        _fadeService.FadeOut(_view.PanelBackground, FADE_DURATION);
     }
 
     private void OnCollect()
@@ -68,8 +66,5 @@ public class PanelState : IUIState
         UpdateDisplay();
     }
 
-    private void UpdateDisplay()
-    {
-        _view.UpdateScoreDisplay(_score.Value);
-    }
+    private void UpdateDisplay() => _view.UpdateScoreDisplay(_score.Value);
 }

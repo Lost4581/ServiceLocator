@@ -25,28 +25,9 @@ public class PanelView : MonoBehaviour
         }
     }
 
-    public void SubscribeClose(System.Action action)
-    {
-        _closeButton.onClick.AddListener(action.Invoke);
-    }
-
-    public void UnsubscribeClose(System.Action action)
-    {
-        _closeButton.onClick.RemoveListener(action.Invoke);
-    }
-
-    public void SubscribeCollect(System.Action action)
-    {
-        _collectButton.onClick.AddListener(action.Invoke);
-    }
-
-    public void UnsubscribeCollect(System.Action action)
-    {
-        _collectButton.onClick.RemoveListener(action.Invoke);
-    }
-
-    public void UpdateScoreDisplay(int value)
-    {
-        _scoreText.text = value.ToString();
-    }
+    public void SubscribeClose(System.Action action) => _closeButton.onClick.AddListener(action.Invoke);
+    public void UnsubscribeClose(System.Action action) => _closeButton.onClick.RemoveListener(action.Invoke);
+    public void SubscribeCollect(System.Action action) => _collectButton.onClick.AddListener(action.Invoke);
+    public void UnsubscribeCollect(System.Action action) => _collectButton.onClick.RemoveListener(action.Invoke);
+    public void UpdateScoreDisplay(int value) => _scoreText.text = value.ToString();
 }

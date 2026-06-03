@@ -20,6 +20,5 @@ public class MainScreenState : IUIState
     public void Exit()
     {
         _view.UnsubscribeOpen(_onOpen);
-        _view.gameObject.SetActive(false);
     }
 }

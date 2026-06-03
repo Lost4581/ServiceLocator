@@ -14,20 +14,17 @@ public class Bootstrapper : MonoBehaviour
     private void Awake()
     {
         var fadeService = new FadeService();
-        var soundPlayer = new SoundPlayer(_audioSource, _openSound, _closeSound);
-
+        var soundPlayer = new SoundPlayer(_audioSource, _openSound, _closeSound, null, null);
         var score = new Score();
-        ISaver saver = new PlayerPrefsSaver(score);
-
+        var saver = new PlayerPrefsSaver(score);
         var serviceLocator = new ServiceLocator(fadeService, soundPlayer, saver);
 
         var switcher = new UISwitcher();
         var mainState = new MainScreenState(_mainScreenView, switcher);
-        var panelState = new PanelState(_panelView, switcher, serviceLocator, score);
+        var panelState = new PanelState(_panelView, switcher, soundPlayer, fadeService, saver, score);
 
         switcher.Register("Main", mainState);
         switcher.Register("Panel", panelState);
-
         switcher.SwitchTo("Main");
     }
 }
